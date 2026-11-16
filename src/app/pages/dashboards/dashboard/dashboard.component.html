@@ -1,0 +1,407 @@
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [title]="'Dashboard'" [breadcrumbItems]="breadCrumbItems"></app-breadcrumb>
+
+  <!-- Error message display -->
+  <div class="row mb-4" *ngIf="hasError">
+    <div class="col-12">
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+          <i class="bx bx-error-circle me-2 fs-4"></i>
+          <div>
+            <strong>Error!</strong> {{ errorMessage }}
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h4 class="mb-2 fw-bold text-primary">Dashboard Go Documentation</h4>
+              <p class="text-muted mb-0">Monitor and manage your documentation workflow</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <div class="d-flex justify-content-md-end gap-2">
+           
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="row justify-content-center" *ngIf="isLoading">
+    <div class="col-12 text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted fs-5">Loading dashboard data...</p>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading">
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6 col-xl-3" *ngFor="let stat of statData">
+        <div class="card border-0 shadow-sm h-100" [ngClass]="'border-start border-4 border-' + stat.color">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <p class="text-muted fw-medium mb-2 text-uppercase small">{{ stat.title }}</p>
+                <h3 class="mb-0 fw-bold">
+                  <span *ngIf="stat.prefix">{{ stat.prefix }}</span>
+                  {{ stat.value }}
+                  <span *ngIf="stat.suffix">{{ stat.suffix }}</span>
+                </h3>
+              </div>
+              <div class="avatar-lg rounded-3" [ngClass]="'bg-' + stat.color + ' bg-opacity-10'">
+                <span class="avatar-title rounded-3 border-0" [ngClass]="'text-' + stat.color">
+                  <i class="bx fs-2" [ngClass]="'bx-' + stat.icon"></i>
+                </span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2 border-top border-light">
+              <ng-container *ngIf="stat.growth !== undefined">
+                <span class="badge me-2" [ngClass]="stat.growth >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                  <i class="bx me-1" [ngClass]="stat.growth >= 0 ? 'bx-up-arrow-alt' : 'bx-down-arrow-alt'"></i>
+                  {{ Math.abs(stat.growth) }}%
+                </span>
+              </ng-container>
+              <span class="text-muted small">{{ stat.subText }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Status and Trends Row -->
+    <div class="row g-4 mb-4">
+      <!-- Document Status Card -->
+      <div class="col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-bottom">
+            <h5 class="card-title mb-0 fw-bold">
+              <i class="bx bx-file me-2 text-primary"></i>
+              Document Status Distribution
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row">
+              <div class="col-6">
+                <div class="text-center p-3 bg-light rounded-3">
+                  <h6 class="text-muted mb-2">Total Documents</h6>
+                  <h2 class="mb-0 fw-bold text-primary">{{ documentStatusData?.totalDocuments || 0 }}</h2>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="ps-3">
+                  <div *ngFor="let stage of documentStatusData?.stages" class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <h6 class="mb-0 small fw-medium">{{ stage.name }}</h6>
+                      <span class="badge" [ngClass]="'bg-' + stage.color + '-subtle text-' + stage.color">
+                        {{ stage.percentage }}%
+                      </span>
+                    </div>
+                    <div class="progress mb-1" style="height: 8px;">
+                      <div class="progress-bar" [ngClass]="'bg-' + stage.color" role="progressbar" 
+                          [style.width.%]="stage.percentage" aria-valuenow="stage.percentage" 
+                          aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p class="text-muted small mb-0">{{ stage.count }} documents</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Trend Chart Card -->
+      <div class="col-xl-8">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bx bx-trending-up me-2 text-primary"></i>
+                Document Trends
+              </h5>
+          
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div *ngIf="isDocumentTrendLoading" class="d-flex justify-content-center align-items-center" style="height: 300px;">
+              <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">Loading chart data...</p>
+              </div>
+            </div>
+            
+            <div *ngIf="!isDocumentTrendLoading">
+              <apx-chart [series]="documentTrendChart.series" [chart]="documentTrendChart.chart" 
+                        [xaxis]="documentTrendChart.xaxis" [yaxis]="documentTrendChart.yaxis"
+                        [legend]="documentTrendChart.legend" [tooltip]="documentTrendChart.tooltip"
+                        [colors]="documentTrendChart.colors" [stroke]="documentTrendChart.stroke"
+                        [plotOptions]="documentTrendChart.plotOptions" [fill]="documentTrendChart.fill"
+                        [labels]="documentTrendChart.labels" [markers]="documentTrendChart.markers">
+              </apx-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department and Line Code Row -->
+    <div class="row g-4 mb-4">
+      <!-- Department Involvement Card -->
+      <div class="col-xl-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bx bx-buildings me-2 text-primary"></i>
+                Department Involvement
+              </h5>
+              <button class="btn btn-outline-primary btn-sm" ngbTooltip="View All Departments" 
+                      [routerLink]="['/documents/departments']">
+                <i class="bx bx-list-ul me-1"></i>View All
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="isDepartmentLoading" class="d-flex justify-content-center align-items-center p-5">
+              <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">Loading departments...</p>
+              </div>
+            </div>
+            
+            <div *ngIf="!isDepartmentLoading && departmentData.length === 0" class="text-center py-5">
+              <i class="bx bx-folder-open display-4 text-muted"></i>
+              <p class="mt-3 text-muted">No department data available</p>
+            </div>
+            
+            <div *ngIf="!isDepartmentLoading && departmentData.length > 0" class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="border-0 fw-medium text-muted small text-uppercase">Department</th>
+                    <th class="border-0 fw-medium text-muted small text-uppercase">Total Docs</th>
+                    <th class="border-0 fw-medium text-muted small text-uppercase">Progress</th>
+                    <th class="border-0 fw-medium text-muted small text-uppercase">Completion</th>
+                    <th class="border-0 fw-medium text-muted small text-uppercase">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let dept of departmentData">
+                    <td class="py-3">
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-sm me-3">
+                          <span class="avatar-title rounded-circle bg-primary text-white fw-bold">
+                            {{ dept.name.charAt(0) }}
+                          </span>
+                        </div>
+                        <div>
+                          <h6 class="mb-1 fw-medium">{{ dept.name }}</h6>
+                          <p class="text-muted mb-0 small">{{ dept.code }} - {{ dept.plant }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3">
+                      <span class="badge bg-light text-dark fs-6">{{ dept.totalDocuments }}</span>
+                    </td>
+                    <td class="py-3">
+                      <div class="progress" style="height: 8px; width: 80px;">
+                        <div class="progress-bar bg-primary" role="progressbar" [style.width.%]="dept.completionRate"
+                            aria-valuenow="dept.completionRate" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </td>
+                    <td class="py-3">
+                      <span class="fw-medium">{{ dept.completionRate }}%</span>
+                    </td>
+                    <td class="py-3">
+                      <button class="btn btn-outline-primary btn-sm" (click)="viewDepartmentDetail(dept.id)">
+                        <i class="bx bx-detail"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Code Distribution Card -->
+<!-- Line Code Distribution Card - Updated section -->
+<div class="col-xl-6">
+  <div class="card border-0 shadow-sm h-100">
+    <div class="card-header bg-transparent border-bottom">
+      <h5 class="card-title mb-0 fw-bold">
+        <i class="bx bx-code-alt me-2 text-primary"></i>
+        Line Code Distribution
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div *ngIf="isLineCodeLoading" class="d-flex justify-content-center align-items-center" style="height: 400px;">
+        <div class="text-center">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted">Loading chart data...</p>
+        </div>
+      </div>
+      
+      <!-- Updated chart container with proper height -->
+      <div *ngIf="!isLineCodeLoading" class="chart-container" style="min-height: 400px; position: relative;">
+        <apx-chart [series]="lineCodeChart.series" 
+                  [chart]="lineCodeChart.chart" 
+                  [labels]="lineCodeChart.labels" 
+                  [legend]="lineCodeChart.legend"
+                  [dataLabels]="lineCodeChart.dataLabels" 
+                  [colors]="lineCodeChart.colors"
+                  [plotOptions]="lineCodeChart.plotOptions"
+                  [responsive]="lineCodeChart.responsive">
+        </apx-chart>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Workflow and Performers Row -->
+    <div class="row g-4 mb-4">
+      <!-- Line Code Workflow Chart Card -->
+      <div class="col-xl-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-bottom">
+            <h5 class="card-title mb-0 fw-bold">
+              <i class="bx bx-git-branch me-2 text-primary"></i>
+              Document Flow by Line Code
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div *ngIf="isLineCodeLoading" class="d-flex justify-content-center align-items-center" style="height: 350px;">
+              <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">Loading workflow data...</p>
+              </div>
+            </div>
+            
+            <div *ngIf="!isLineCodeLoading">
+              <apx-chart [series]="lineCodeFlowChart.series" [chart]="lineCodeFlowChart.chart" 
+                        [xaxis]="lineCodeFlowChart.xaxis" [yaxis]="lineCodeFlowChart.yaxis"
+                        [legend]="lineCodeFlowChart.legend" [plotOptions]="lineCodeFlowChart.plotOptions"
+                        [colors]="lineCodeFlowChart.colors" [stroke]="lineCodeFlowChart.stroke"
+                        [fill]="lineCodeFlowChart.fill">
+              </apx-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Performers Card -->
+      <div class="col-xl-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bx bx-trophy me-2 text-primary"></i>
+                Top Performers
+              </h5>
+              <ul class="nav nav-pills nav-sm" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active px-3 py-2" id="submitters-tab" data-bs-toggle="pill" 
+                          data-bs-target="#submitters" type="button" role="tab">Submitters</button>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="isTopPerformersLoading" class="d-flex justify-content-center align-items-center p-5">
+              <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">Loading performers...</p>
+              </div>
+            </div>
+            
+            <div *ngIf="!isTopPerformersLoading" class="tab-content">
+              <!-- Submitters Tab -->
+              <div class="tab-pane fade show active" id="submitters" role="tabpanel">
+                <div *ngIf="topSubmitters.length === 0" class="text-center py-5">
+                  <i class="bx bx-user display-4 text-muted"></i>
+                  <p class="mt-3 text-muted">No submitter data available</p>
+                </div>
+                
+                <div *ngIf="topSubmitters.length > 0" class="table-responsive">
+                  <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="border-0 fw-medium text-muted small text-uppercase">Rank</th>
+                        <th class="border-0 fw-medium text-muted small text-uppercase">Employee</th>
+                        <th class="border-0 fw-medium text-muted small text-uppercase">Documents</th>
+                        <th class="border-0 fw-medium text-muted small text-uppercase">Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let submitter of topSubmitters">
+                        <td class="py-3">
+                          <span class="badge fs-6" [ngClass]="
+                            submitter.rank === 1 ? 'bg-warning text-dark' : 
+                            submitter.rank === 2 ? 'bg-secondary' : 
+                            submitter.rank === 3 ? 'bg-bronze text-dark' : 'bg-light text-dark'">
+                            #{{ submitter.rank }}
+                          </span>
+                        </td>
+                        <td class="py-3">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">
+                              <span class="avatar-title rounded-circle bg-primary text-white fw-bold">
+                                {{ submitter.employeeName.charAt(0) }}
+                              </span>
+                            </div>
+                            <div>
+                              <h6 class="mb-1 fw-medium">{{ submitter.employeeName }}</h6>
+                              <p class="text-muted mb-0 small">{{ submitter.department }}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="py-3">
+                          <span class="badge bg-light text-dark fs-6">{{ submitter.totalHandovers }}</span>
+                        </td>
+                        <td class="py-3">
+                          <div class="d-flex align-items-center">
+                            <span class="me-2 fw-medium">{{ submitter.averageRating }}</span>
+                            <div>
+                              <ngb-rating [max]="5" [rate]="submitter.averageRating" [readonly]="true"></ngb-rating>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
