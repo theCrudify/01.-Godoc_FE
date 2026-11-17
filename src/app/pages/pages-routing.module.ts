@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AdminGuard } from '../core/guards/admin.guard';
 
 // Component pages
 import { DashboardComponent } from "./dashboards/dashboard/dashboard.component";
@@ -11,6 +12,8 @@ const routes: Routes = [
     },
     {
       path: 'master-data',
+      canActivate: [AdminGuard], // UX saja; otorisasi sebenarnya di backend (requireSuperAdmin)
+      data: { roles: ['Super Admin'] },
       loadChildren: () =>
         import('./master-data/master-data.module').then(
           (m) => m.MasterDataModule

@@ -29,7 +29,8 @@ export class AdminGuard implements CanActivate {
 
     // Check user role - bisa dari user_role atau dari role.role_name
     const userRole = currentUser.user_role || currentUser.role?.role_name;
-    const adminRoles = ['admin', 'Admin', 'Super Admin'];
+    // Route boleh mempersempit role lewat data.roles (mis. master-data: hanya Super Admin)
+    const adminRoles: string[] = route.data?.['roles'] ?? ['admin', 'Admin', 'Super Admin'];
 
     if (adminRoles.includes(userRole)) {
       return true;

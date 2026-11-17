@@ -246,14 +246,10 @@ export class handoverCreateComponent implements OnInit, OnDestroy {
       });
 
     // Add event handler for beforeunload to save data before page refreshes
-    window.addEventListener('beforeunload', () => {
-      this.saveFormToLocalStorage();
-    });
+    window.addEventListener('beforeunload', this.saveDraftOnUnload);
 
     // Also listen for app-level events like browser refresh
-    window.addEventListener('pagehide', () => {
-      this.saveFormToLocalStorage();
-    });
+    window.addEventListener('pagehide', this.saveDraftOnUnload);
 
     // Set loading to false once initialization is complete
     setTimeout(() => {
@@ -261,19 +257,17 @@ export class handoverCreateComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  // Referensi handler yang sama untuk add & remove (arrow function baru tidak pernah ter-remove → leak)
+  private readonly saveDraftOnUnload = () => this.saveFormToLocalStorage();
+
   ngOnDestroy(): void {
     // Cleanup subscriptions
     this.destroy$.next();
     this.destroy$.complete();
 
     // Remove event listeners
-    window.removeEventListener('beforeunload', () => {
-      this.saveFormToLocalStorage();
-    });
-
-    window.removeEventListener('pagehide', () => {
-      this.saveFormToLocalStorage();
-    });
+    window.removeEventListener('beforeunload', this.saveDraftOnUnload);
+    window.removeEventListener('pagehide', this.saveDraftOnUnload);
   }
 
   /**

@@ -16,7 +16,6 @@ import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from '../environments/environment';
 import { initFirebaseBackend } from './authUtils';
-import { FakeBackendInterceptor } from './core/helpers/fake-backend';
 import { ErrorInterceptor } from './core/helpers/error.interceptor';
 import { JwtInterceptor } from './core/helpers/jwt.interceptor';
 import { AuthInterceptorService } from './auth-interceptor.service';  // Pastikan path ini benar
@@ -49,8 +48,6 @@ export function createTranslateLoader(http: HttpClient): any {
 
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
-} else {
-  FakeBackendInterceptor;
 }
 
 @NgModule({
@@ -72,10 +69,8 @@ if (environment.defaultauth === 'firebase') {
     AppRoutingModule,
     LayoutsModule,
     StoreModule.forRoot(rootReducer),
-    StoreDevtoolsModule.instrument({
-      maxAge: 25, // Retains last 25 states
-      logOnly: environment.production, // Restrict extension to log-only mode
-    }),
+    // Devtools hanya saat development (di production cuma overhead)
+    ...(environment.production ? [] : [StoreDevtoolsModule.instrument({ maxAge: 25 })]),
     EffectsModule.forRoot([
       AuthenticationEffects,
       EcommerceEffects,
@@ -96,7 +91,6 @@ if (environment.defaultauth === 'firebase') {
     AppService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }, // Tambahkan AuthInterceptorService di sini
 
   ],

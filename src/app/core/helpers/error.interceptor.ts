@@ -16,7 +16,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                 this.authenticationService.logout();
                 location.reload();
             }
-            const error = err.error.message || err.statusText;
+            const error = err.error?.message || err.statusText; // err.error null saat network error
             return throwError(error);
         }))
     }
