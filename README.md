@@ -1,27 +1,70 @@
-# Velzon
+# 📄 Go-Document System (Frontend)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.4.
+Frontend web application for the **Go-Document Management & Workflow System**, built with **Angular 17**. This application provides an interactive interface for managing document numbering, proposed changes, authorization workflows, document handovers, multi-step approvals, and completion ratings.
 
-## Development server
+## 🧱 Tech Stack
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+- **Framework**: Angular 17
+- **State Management**: NgRx (`@ngrx/store`, `@ngrx/effects`)
+- **UI & Styling**: Bootstrap 5, Ng-Bootstrap, Angular Material, SCSS
+- **Data Visualization**: ApexCharts, ECharts, Chart.js
+- **Rich Text & Utilities**: CKEditor 5, Flatpickr, SweetAlert2, Ngx-Mask, Ngx-Dropzone
 
-## Code scaffolding
+## 🚀 Quick Start
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### 1. Prerequisites
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
+- Running instance of **Go-Document Backend API**
 
-## Build
+### 2. Install Dependencies
+```sh
+npm install
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### 3. Environment Configuration
+Check and configure the API URL in `src/environments/`:
 
-## Running unit tests
+- **Development** (`src/environments/environment.ts`):
+  ```typescript
+  export const environment = {
+    apiUrl: "http://localhost:7777/api",
+    production: false,
+    defaultauth: 'fakebackend',
+    firebaseConfig: { ... }
+  };
+  ```
+- **Production** (`src/environments/environment.prod.ts`):
+  ```typescript
+  export const environment = {
+    apiUrl: "https://your-production-domain.com/api",
+    production: true,
+    defaultauth: 'fakebackend',
+    firebaseConfig: { ... }
+  };
+  ```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### 4. Start Development Server
+```sh
+npm start
+# or
+ng serve
+```
+Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Running end-to-end tests
+### 5. Build for Production
+```sh
+npm run build
+```
+The build artifacts will be stored in the `dist/velzon` directory.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## 📁 Key Modules
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- **Dashboard**: Summary analytics, document statistics, department involvement, and top contributors (`src/app/pages/dashboards`)
+- **Master Data**: Organization structure (Plant, Department, Section, Line, Area), Document Types & Categories, Support Documents, User Authorizations, and Approver Templates (`src/app/pages/master-data`)
+- **Activity & Document Workflows** (`src/app/pages/activity-page`):
+  1. **Document Numbers** (`01-document-numbers`)
+  2. **Proposed Changes & Approvals** (`02-proposed-changes`, `02-approval-proposed-changes`)
+  3. **Authorization Documents & Approvers** (`03-authorization-doc`, `03-authorization-doc-approver`)
+  4. **Handover Documents & Approvers** (`04-handover-doc`, `04-handover-doc-approver`)
+  5. **Completion & Rating** (`05-completion`)
